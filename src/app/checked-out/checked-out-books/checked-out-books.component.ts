@@ -1,8 +1,7 @@
 import { Component, OnInit, HostBinding, ViewChild } from '@angular/core';
 import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Book } from '../../shared/book';
+import { Router } from '@angular/router';
 import { MemberService } from '../../services/member.service';
 import { AuthService } from '../../services/auth.service';
 import { SignedOutBook } from '../../shared/signed-out-book';
@@ -36,7 +35,6 @@ export class CheckedOutBooksComponent implements OnInit {
     private authService: AuthService,
     private memberService: MemberService,
     private router: Router,
-    private route: ActivatedRoute,
     private libraryService: LibrariesService,
     private booksService: BooksService
     ) { }

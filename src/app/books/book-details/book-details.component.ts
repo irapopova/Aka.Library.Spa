@@ -28,7 +28,10 @@ export class BookDetailsComponent implements OnInit {
   numBooksAvailable: number;
   bookMetadata: GoogleBooksMetadata;
   numOfThisBookSignedOutByUser: number;
-
+  libraryId: number;
+  bookId: number;
+  maximumAllowedNumberOfBooksSignedOut: number = 2;
+  
   constructor(
     private route: ActivatedRoute,
     private books: BooksService,
@@ -36,12 +39,12 @@ export class BookDetailsComponent implements OnInit {
     private memberService: MemberService
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.route.paramMap
       .subscribe((params: ParamMap) => {
-        const libraryId = +params.get('lid');
-        const bookId = +params.get('id');
-        this.getBookDetails(libraryId, bookId);
+        this.libraryId = +params.get('lid');
+        this.bookId = +params.get('id');
+        this.getBookDetails();
       });
   }
 
@@ -52,47 +55,42 @@ export class BookDetailsComponent implements OnInit {
    * @memberof BookDetailsComponent
    */
   isMaximumNumberOfBooksSignedOut(): boolean {
-    // TODO: Implement check
-    return false;
+    return this.numBooksSignedOut >= this.maximumAllowedNumberOfBooksSignedOut;
   }
 
-  checkOutBook() {
-    const params = this.route.snapshot.paramMap;
-    this.books.checkOutBook(+params.get('lid'), +params.get('id'), this.authService.currentMember.memberId)
+  checkOutBook(): void {
+    if(this.isMaximumNumberOfBooksSignedOut()) {
+      return;
+    }
+
+    this.books.checkOutBook(this.libraryId, this.bookId, this.authService.currentMember.memberId)
       .pipe(
         take(1)
       )
       .subscribe(() => {
-        const libraryId = +params.get('lid');
-        const bookId = +params.get('id');
-        this.getBookDetails(libraryId, bookId);
+        this.getBookDetails();
       });
   }
 
-  returnBook() {
-    const params = this.route.snapshot.paramMap;
-    this.books.returnBook(+params.get('lid'), +params.get('id'), this.authService.currentMember.memberId)
+  returnBook(): void {
+    this.books.returnBook(this.libraryId, this.bookId, this.authService.currentMember.memberId)
       .pipe(
         take(1)
       )
       .subscribe(() => {
-        const libraryId = +params.get('lid');
-        const bookId = +params.get('id');
-        this.getBookDetails(libraryId, bookId);
+        this.getBookDetails();
       });
   }
 
   /**
    * Gets all the details for the passed book to be used for displaying in the books details
    *
-   * @param {number} libraryId
-   * @param {number} bookId
    * @memberof BookDetailsComponent
    */
-  getBookDetails(libraryId: number, bookId: number) {
+  getBookDetails(): void {
     forkJoin([
-      this.books.getBook(libraryId, bookId),
-      this.books.getNumberOfAvailableBookCopies(libraryId, bookId),
+      this.books.getBook(this.libraryId, this.bookId),
+      this.books.getNumberOfAvailableBookCopies(this.libraryId, this.bookId),
       this.memberService.getSignedOutBooks(this.authService.currentMember)
     ]).pipe(
       take(1),
@@ -115,7 +113,7 @@ export class BookDetailsComponent implements OnInit {
       catchError(err => {
         return throwError(err);
       })
-    );
+    ).subscribe((book) => { this.book = book });
   }
 
 }

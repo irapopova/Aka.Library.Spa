@@ -1,14 +1,16 @@
+import { Component, OnInit, Input, ViewChild, AfterViewInit, HostBinding } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
+import { Router, ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { BooksService } from '../../services/books.service';
 import { Library } from '../../shared/library';
-import { Component, OnInit, Input, ViewChild, AfterViewInit, HostBinding } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { LibraryBook } from '../../shared/library-book';
 import { Book } from '../../shared/book';
 import { slideInDownAnimation } from '../../animations';
-import { Router, ActivatedRoute } from '@angular/router';
-import { map as lmap, unionBy } from 'lodash';
-import { map } from 'rxjs/operators';
+import { map as lmap } from 'lodash';
 
 @Component({
   selector: 'app-book-list',
@@ -36,11 +38,16 @@ export class BookListComponent implements OnInit, AfterViewInit {
     if (value != null) {
       forkJoin([
         this.books.getBooks(this.currentLibrary.libraryId),
-        this.books.getAvailableBooks(this.currentLibrary.libraryId)
+        this.books.getCheckedOutBooks(this.currentLibrary.libraryId)
       ])
         .pipe(
-          map(([books, availableBooks]) => {
-            return unionBy(lmap(availableBooks, (book: Book) => ({ ...book, isAvailable: true })), books, 'bookId');
+          map(([books, checkedOutBooks]) => {
+            return lmap(books, 
+              (book: LibraryBook) => 
+              ({ ...book.book, 
+                isAvailable: 
+                (book.totalPurchasedByLibrary - checkedOutBooks.filter(cb => cb.bookId == book.book.bookId).length) > 0})
+              );
           })
         )
         .subscribe((books: Book []) => {
@@ -70,5 +77,4 @@ export class BookListComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
   }
-
 }

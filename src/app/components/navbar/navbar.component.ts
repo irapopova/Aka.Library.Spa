@@ -1,7 +1,6 @@
 import { Member } from './../../members/interfaces/member';
 import { AuthService } from './../../services/auth.service';
 import { Observable } from 'rxjs';
-import { LoginButtonComponent } from './../login-button/login-button.component';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -23,5 +22,4 @@ export class NavbarComponent implements OnInit {
   ngOnInit() {
     this.isLoggedIn$ = this.auth.isLoggedIn;
   }
-
 }

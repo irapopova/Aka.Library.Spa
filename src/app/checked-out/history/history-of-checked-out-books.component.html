@@ -1,0 +1,37 @@
+<div class="mat-elevation-z8">
+      
+    <mat-table #table [dataSource]="dataSource">   
+        <!-- No Column -->
+        <ng-container matColumnDef="id">
+            <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.libraryBookSid}} </mat-cell>
+          </ng-container>
+      
+          <!-- Library Name Column -->
+          <ng-container matColumnDef="library">
+            <mat-header-cell *matHeaderCellDef> Library Name </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.libraryName}}</mat-cell>
+          </ng-container>
+      
+          <!-- Title Column -->
+          <ng-container matColumnDef="title">
+            <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.bookName}}</mat-cell>
+          </ng-container>
+      
+          <!-- Checked Out Date Column -->
+          <ng-container matColumnDef="dateCheckedOut">
+            <mat-header-cell *matHeaderCellDef> Checked Out Date </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.whenSignedOut | date}} </mat-cell>
+          </ng-container>
+      
+          <!-- Retuned Date Column -->
+          <ng-container matColumnDef="dateReturned">
+            <mat-header-cell *matHeaderCellDef>Returned Date</mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.whenReturned | date}} </mat-cell>
+          </ng-container>
+      
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+</div>

@@ -29,6 +29,9 @@ export class AuthService {
         tap(res => {
           this.isAuthenticated = res !== null;
           this.currentMember = res;
+          if(this.isAuthenticated) {
+            this.loggedIn.next(true);
+          }
         })
       );
   }
